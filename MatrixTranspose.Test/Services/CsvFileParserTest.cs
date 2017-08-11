@@ -27,11 +27,12 @@ namespace MatrixTranspose.Test.Services
         [Test]
         public void Parse()
         {
-            var file = CreateFile(_matrix);
+            using (var file = CreateFile(_matrix))
+            {
+                var result = _fileParser.Parse(file);
 
-            var result = _fileParser.Parse(file);
-
-            Assert.That(result, Is.EqualTo(_matrix));
+                Assert.That(result, Is.EqualTo(_matrix));
+            }
         }
 
         [Test]

@@ -9,37 +9,43 @@ namespace MatrixTranspose.Services
     {
         public string[][] Parse(Stream file)
         {
-            var csvParser = new CsvParser(new StreamReader(file));
-            var firstRecord = csvParser.Read();
-            var matrix = new string[firstRecord.Length][];
-            matrix[0] = firstRecord;
-
-            for (var i = 1; i < firstRecord.Length; i++)
+            using (file)
             {
-                var record = csvParser.Read();
-                matrix[i] = record;
-            }
+                var csvParser = new CsvParser(new StreamReader(file));
+                var firstRecord = csvParser.Read();
+                var matrix = new string[firstRecord.Length][];
+                matrix[0] = firstRecord;
 
-            return matrix;
+                for (var i = 1; i < firstRecord.Length; i++)
+                {
+                    var record = csvParser.Read();
+                    matrix[i] = record;
+                }
+
+                return matrix;
+            }
         }
 
         public string Unparse(string[][] matrix)
         {
-            var file = new MemoryStream();
-            var writer = new StreamWriter(file);
-            var csvWriter = new CsvWriter(writer);
-
-            foreach (var row in matrix)
+            using (var file = new MemoryStream())
             {
-                foreach (var item in row)
-                {
-                    csvWriter.WriteField(item);
-                }
-                csvWriter.NextRecord();
-            }
-            writer.Flush();
+                var writer = new StreamWriter(file);
+                var csvWriter = new CsvWriter(writer);
 
-            return new string(Encoding.UTF8.GetChars(file.ToArray()));
+                foreach (var row in matrix)
+                {
+                    foreach (var item in row)
+                    {
+                        csvWriter.WriteField(item);
+                    }
+                    csvWriter.NextRecord();
+                }
+                writer.Flush();
+
+                return new string(Encoding.UTF8.GetChars(file.ToArray()));
+            }
+           
         }
     }
 }
